@@ -130,4 +130,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 REST_FRAMEWORK = {
 }
-
