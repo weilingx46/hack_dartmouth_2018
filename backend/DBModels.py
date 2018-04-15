@@ -41,7 +41,20 @@ class Trip(Document):
   
   def status():
     return self.objectify()
-  
+
+  @staticmethod
+  def enter(tId, password):
+    
+    matches = Trip.objects(id=tId)
+    if not matches:
+      return False
+
+    trip = matches[0]
+    if bcrypt.hashpw(password.encode(),trip.tPassword.encode()) == trip.tPassword.encode():
+      return True
+    else:
+      return False
+        
   
   def addPeople(self, morePeople):
 
@@ -51,8 +64,7 @@ class Trip(Document):
         matches = User.objects(id=pId)
         if matches:
           matches[0].addTrip(str(self.id))
-    
-    self.save()
+
 
     return self.objectify()
     
@@ -212,10 +224,8 @@ class User(Document):
       trip.tPeople = trip.tPeople + [str(self.id)]
       self.trips = self.trips + [tripId]
 
-      self.save()
+      print(self.save())
       trip.save()
-
-
       
       return trip.objectify()
     else:
@@ -232,7 +242,6 @@ class User(Document):
       trip.tPeople.remove(str(self.id))
       self.trips.remove(tripId)
 
-      print("HEY")
       print(trip.tPeople)
       
       self.save()
