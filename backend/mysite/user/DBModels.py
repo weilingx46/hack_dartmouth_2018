@@ -6,7 +6,7 @@ import bcrypt
 connect("Trips")
 
 class Trip(Document):
-  
+
   tPeople = ListField()
   tId = StringField(max_length=20)
   tPassword = StringField(max_length=20)
@@ -22,14 +22,14 @@ class Trip(Document):
     tPassword = bcrypt.hashpw(tPassword,bcrypt.getsalt())
     newTrip = Trip(tName = tName, tPassword = tPassword, tDest = tDest, tPeople = tPeople)
     newTrip.save()
-      
+
     return newTrip.objectify()
 
   @staticmethod
   def check(tId):
     matches = Trip.objects(id = tId)
     if not matches:
-      return 
+      return
 
     return matches[0]
 
@@ -38,7 +38,7 @@ class Trip(Document):
     self.save()
 
     return self.objectify()
-    
+
   def deletePeople(self, deletePeople):
     self.tPeople = [x for x in self.tPeople if x not in deletePeople]
     self.save()
@@ -66,23 +66,23 @@ class Trip(Document):
       m = User.objects(id = i)
       if m:
         people.append(m.objectify())
-        
+
     return {'success':True,'tId':str(self.id),'tName': self.tName ,'tPeople': people, 'tDest':self.tDest}
-    
+
 class Friend(EmbeddedDocument):
   fName = StringField(max_length=30)
   fId = StringField(max_length=20)
 
   def objectify(self):
     return {'success':True, 'name':self.fName, 'id':self.fId }
-  
+
 class User(Document):
 
   uName = StringField(max_length=30)
   uId = StringField(max_length=20)
   uPassword = StringField()
   uUsername = StringField(max_length=20)
-  
+
   friends = ListField(EmbeddedDocumentField(Friend))
   trips = ListField()
 
@@ -94,14 +94,14 @@ class User(Document):
   indicator = StringField()
 
   indicators = ["Short Break","Restroom","Grabbing Something To Eat","Sleep"]
-  
+
   # create a new user, pass in desired username, password, and name
   @staticmethod
   def create(username, password, name):
 
     if len(username) < 4 or len(password) < 4:
       return {"success":False, "message":"Username or password too short!"}
-    
+
     if User.objects(uUsername = username):
       return {"success":False, "message":"User already exists!"}
 
@@ -128,7 +128,7 @@ class User(Document):
 
     usr.lastLogin = time.time()
     usr.save()
-    
+
     return {"success":True, "uName":usr.uUsername, "uId":str(usr.id), "authToken":usr.authToken, "friends":usr.friends, "trips":usr.trips}
 
   # return user object if validated, otherwise give error object
@@ -137,25 +137,25 @@ class User(Document):
     try:
       int(uId, 16)
     except ValueError:
-      return 
+      return
 
     matches = User.objects(id=uId)
     if not matches:
-      return 
+      return
 
     usr = matches[0]
 
     now = time.time()
     if not usr.authToken:
-      return 
+      return
     elif (now - usr.lastLogin) > 60*30:
       usr.authToken = None
       usr.save()
-      return 
+      return
     elif AuthToken == usr.authToken:
       return usr
     else:
-      return 
+      return
 
   # update name password
   def update(self, name, password):
@@ -175,8 +175,8 @@ class User(Document):
       if match:
         trips.append((match[0].tName, match[0].tId))
 
-    friends = []  
+    friends = []
     for f in self.friends:
       friends.append(f.objectify())
-      
+
     return {'uName':self.uName, 'uId':self.uId, 'lat':self.latitude, 'long':self.longitude, 'indicator':self.indicator, 'trips':trips, 'friends':friends }

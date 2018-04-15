@@ -11,25 +11,49 @@ def index(request):
 @csrf_exempt
 def create(request):
     #Trip.create(tName, tPassword, tPeople, tDest)
-    return HttpResponse("trip ID")
+    json_data = json.loads(request.body.decode())
+    output = Trip.Create(json_data['tName'], json_data['tPassword'], json_data['tPeople'], json_data['tDest'])
+    if output['success']!= False:
+        return JsonResponse(output)
+    else:
+        return JsonResponse({'error':'create_error'})
 
 #3 arguments (id, password, member name)
 @csrf_exempt
 def add (request):
+    json_data = json.loads(request.body.decode())
+    trip = Trip.check(json_data['tId'])
+    output = trip.addPeople(json_data['people'])
     #trip.addPeople(tPeople)
-    return HttpResponse("trip ID")
+    if output['success'] == True:
+        return JsonResponse(output)
+    else:
+        return JsonResponse({'error':'add_error'})
 
 #3 arguments (squad name, member name)
 @csrf_exempt
 def delete(request):
+    json_data = json.loads(request.body.decode())
+    trip = Trip.check(json_data['tId'])
+    output = trip.deletePeople(json_data['people'])
+    #trip.addPeople(tPeople)
+    if output['success'] == True:
+        return JsonResponse(output)
     #trip.delete
-    return HttpResponse("Squad ID")
+    else:
+        return JsonResponse({'error':'delete_error'})
 
 #uncertain how many arguments
 @csrf_exempt
 def destination (request):
+    json_data = json.loads(request.body.decode())
+    trip = Trip.check(json_data['tId'])
+    output = trip.changeDest(json_data['tDest'])
     #trip.changeDest(tDest)
-    return HttpResponse("Long/Lat Object")
+    if output['success'] == True:
+        return JsonResponse(output)
+    else:
+        return JsonResponse({'error':"destination_error"})
 
 #GET
 @csrf_exempt
