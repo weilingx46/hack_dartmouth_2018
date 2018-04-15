@@ -39,6 +39,10 @@ class Trip(Document):
     return list(map(lambda x: [x.tName, str(x.id)], Trip.objects()))
 
 
+  def status():
+    return self.objectify()
+
+
   def addPeople(self, morePeople):
     self.tPeople = self.tPeople + morePeople
     self.save()
@@ -99,7 +103,7 @@ class User(Document):
 
   latitude = FloatField()
   longitude = FloatField()
-  indicator = StringField()
+  indicator = IntField()
 
   indicators = ["Short Break","Restroom","Grabbing Something To Eat","Sleep"]
 
@@ -166,11 +170,17 @@ class User(Document):
       return
 
   # update name password
-  def update(self, name, password):
+  def update(self, name, password, latitude, longitude, indicator):
     if name:
       self.uName = name
     if password:
       self.password = password
+    if latitude:
+      self.latitude = latitude
+    if longitude:
+      self.longitude = longitude
+    if indicator:
+      self.indicator = indicator
     self.save()
 
     return self.objectify()
