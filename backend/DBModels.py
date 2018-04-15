@@ -103,7 +103,7 @@ class User(Document):
 
   latitude = FloatField()
   longitude = FloatField()
-  indicator = IntField()
+  indicator = StringField()
 
   indicators = ["Short Break","Restroom","Grabbing Something To Eat","Sleep"]
   
