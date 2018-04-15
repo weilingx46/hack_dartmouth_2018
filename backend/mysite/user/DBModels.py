@@ -2,11 +2,12 @@ from mongoengine import *
 import time
 import uuid
 import bcrypt
+import sys
 
 connect("Trips")
 
 class Trip(Document):
-
+  
   tPeople = ListField()
   tId = StringField(max_length=20)
   tPassword = StringField()
@@ -22,19 +23,19 @@ class Trip(Document):
     tPassword = bcrypt.hashpw(tPassword.encode(),bcrypt.gensalt())
     newTrip = Trip(tName = tName, tPassword = tPassword, tDest = tDest, tPeople = tPeople)
     newTrip.save()
-
+      
     return newTrip.objectify()
 
   @staticmethod
   def check(tId):
     matches = Trip.objects(id = tId)
     if not matches:
-      return
+      return 
 
     return matches[0]
 
   def getAll():
-    return list(map(lambda x: [x.tName, x.tId], Trip.objects()))
+    return list(map(lambda x: [x.tName, str(x.id)], Trip.objects()))
 
   
   def addPeople(self, morePeople):
@@ -42,7 +43,7 @@ class Trip(Document):
     self.save()
 
     return self.objectify()
-
+    
   def deletePeople(self, deletePeople):
     self.tPeople = [x for x in self.tPeople if x not in deletePeople]
     self.save()
@@ -65,28 +66,30 @@ class Trip(Document):
     return self.objectify()
 
   def objectify(self):
+
     people = []
     for i in self.tPeople:
-      m = User.objects(id = i)
-      if m:
-        people.append(m.objectify())
-
+      if i:
+        m = User.objects(id = i)
+        if m:
+          people.append(m[0].objectify())
+        
     return {'success':True,'tId':str(self.id),'tName': self.tName ,'tPeople': people, 'tDest':self.tDest}
-
+    
 class Friend(EmbeddedDocument):
   fName = StringField(max_length=30)
   fId = StringField(max_length=20)
 
   def objectify(self):
     return {'success':True, 'name':self.fName, 'id':self.fId }
-
+  
 class User(Document):
 
   uName = StringField(max_length=30)
   uId = StringField(max_length=20)
   uPassword = StringField()
   uUsername = StringField(max_length=20)
-
+  
   friends = ListField(EmbeddedDocumentField(Friend))
   trips = ListField()
 
@@ -98,14 +101,14 @@ class User(Document):
   indicator = StringField()
 
   indicators = ["Short Break","Restroom","Grabbing Something To Eat","Sleep"]
-
+  
   # create a new user, pass in desired username, password, and name
   @staticmethod
   def create(username, password, name):
 
     if len(username) < 4 or len(password) < 4:
       return {"success":False, "message":"Username or password too short!"}
-
+    
     if User.objects(uUsername = username):
       return {"success":False, "message":"User already exists!"}
 
@@ -132,7 +135,7 @@ class User(Document):
 
     usr.lastLogin = time.time()
     usr.save()
-
+    
     return {"success":True, "uName":usr.uUsername, "uId":str(usr.id), "authToken":usr.authToken, "friends":usr.friends, "trips":usr.trips}
 
   # return user object if validated, otherwise give error object
@@ -141,25 +144,25 @@ class User(Document):
     try:
       int(uId, 16)
     except ValueError:
-      return
+      return 
 
     matches = User.objects(id=uId)
     if not matches:
-      return
+      return 
 
     usr = matches[0]
 
     now = time.time()
     if not usr.authToken:
-      return
+      return 
     elif (now - usr.lastLogin) > 60*30:
       usr.authToken = None
       usr.save()
-      return
+      return 
     elif AuthToken == usr.authToken:
       return usr
     else:
-      return
+      return 
 
   # update name password
   def update(self, name, password):
@@ -179,79 +182,81 @@ class User(Document):
       if match:
         trips.append((match[0].tName, match[0].tId))
 
-    friends = []
+    friends = []  
     for f in self.friends:
       friends.append(f.objectify())
-
-    return {'uName':self.uName, 'uId':self.uId, 'lat':self.latitude, 'long':self.longitude, 'indicator':self.indicator, 'trips':trips, 'friends':friends }
+      
+    return {'uName':self.uName, 'uId':str(self.id), 'lat':self.latitude, 'long':self.longitude, 'indicator':self.indicator, 'trips':trips, 'friends':friends }
 
 
 if __name__ == "__main__":
   restore = []
+
+  try:
+    print("==== Creating account for 'henry' ====== ")
+    a = User.create('account1','password1','henry')
+    print("User.create returned: " + str(a))
+    a = User.objects(id=a['uId'])
+    restore.append(a[0])
+
+    print()
+    print("==== Creating account for 'jill' ===== ")
+    a = User.create('account2','password2','jill')
+    print("User.create returned: " + str(a))
+    a = User.objects(id=a['uId'])
+    restore.append(a[0])
+
+
+    print()
+
+    print("==== Creating account for 'jack' ==== ")
+    a = User.create('account3','password3', 'jack')
+    print("User.create returned: " + str(a))
+    a = User.objects(id = a['uId'])
+    restore.append(a[0])
+
+    print()
+    print("==== Logging in as jill ==== ")
+    a = User.login('account2','password2')
+    print("User.login returned: " + str(a))
+
+    print()
+    print("==== Logging in as Jack ==== ")
+    a = User.login('account3', 'password3')
+    print("User.login returned: " + str(a))
+
+
+    print()
+    print("=== Checking Jack authorization ===")
+    a = User.check(a['uId'],a['authToken'])
+    print("User.check returned " + str(a))
+
+    print()
+    print("=== Updating jill's account username ==== ")
+    restore[2].update('jillian',None)
+    print("Results after updating name: " + str(restore[2].objectify()))
+
+    print()
+    print("=== Creating empty trip ==== ")
+    a = Trip.create("trip1","password1",[],[])
+    print("Trip.create returned: " + str(a))
+    a = Trip.objects(id = a['tId'])[0]
+    restore.append(a)
+
+    print()
+    print("=== Creating cool trip ==== ")
+    a = Trip.create("cooltrip","hardtoguess",[str(restore[1].id),str(restore[2].id)],[60,60])
+    print("Trip.create returned: " + str(a))
+    sys.stdout.flush()
+    a = Trip.objects(id = a['tId'])[0]
+    restore.append(a)
+
+    print()
+    print("Trip.getAll returns: " + str(Trip.getAll()))
   
-  print("==== Creating account for 'henry' ====== ")
-  a = User.create('account1','password1','henry')
-  print("User.create returned: " + str(a))
-  a = User.objects(id=a['uId'])
-  restore.append(a[0])
+  finally:
+    for o in restore:
+      o.delete()
 
-  print()
-  print("==== Creating account for 'jill' ===== ")
-  a = User.create('account2','password2','jill')
-  print("User.create returned: " + str(a))
-  a = User.objects(id=a['uId'])
-  restore.append(a[0])
-
-
-  print()
-
-  print("==== Creating account for 'jack' ==== ")
-  a = User.create('account3','password3', 'jack')
-  print("User.create returned: " + str(a))
-  a = User.objects(id = a['uId'])
-  restore.append(a[0])
-
-  print()
-  print("==== Logging in as jill ==== ")
-  a = User.login('account2','password2')
-  print("User.login returned: " + str(a))
-
-  print()
-  print("==== Logging in as Jack ==== ")
-  a = User.login('account3', 'password3')
-  print("User.login returned: " + str(a))
-
-
-  print()
-  print("=== Checking Jack authorization ===")
-  a = User.check(a['uId'],a['authToken'])
-  print("User.check returned " + str(a))
-
-  print()
-  print("=== Updating jill's account username ==== ")
-  restore[2].update('jillian',None)
-  print("Results after updating name: " + str(restore[2].objectify()))
-
-  print()
-  print("=== Creating empty trip ==== ")
-  a = Trip.create("trip1","password1",[],[])
-  print("Trip.create returned: " + str(a))
-  a = Trip.objects(id = a['tId'])[0]
-  restore.append(a)
-
-  print()
-  print("=== Creating cool trip ==== ")
-  a = Trip.create("cool trip","hardtoguess",[a[1].uId,a[2].uId],[60,60])
-  print("Trip.create returned: " + str(a))
-  a = Trip.objects(id = a['tId'])[0]
-  restore.append(a)
-
-  print()
-  print("Trip.getAll returns: " + str(Trip.getAll()))
-  
-  
-  for o in restore:
-    o.delete()
-
-  print()
-  print("==== Deleted test objects from database! ====")
+    print()
+    print("==== Deleted test objects from database! ====")
