@@ -43,12 +43,7 @@ def update(request):
     json_data = json.loads(request.body.decode())
     person = User.check(json_data['uId'], json_data['authToken'])
     if person:
-        return JsonResponse(person.update(json_data['name'], json_data['password']))
+        return JsonResponse(person.update(json_data['name'], json_data['password'], json_data['lat'], json_data['long'],json_data['indicator']))
     else:
     #if true, call udpate, which returns same as login
         return JsonResponse({'error':output['message']})
-
-@csrf_exempt
-def status(request):
-    #call updateStatus
-    return HttpResponse("status + lat/long + people in user")
