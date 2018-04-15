@@ -55,7 +55,7 @@ def addTrip (request):
     if person == None:
         return JsonResponse({'error': 'Person does not exist!'})
     output = person.addTrip(json_data['tId'])
-    if person and User.enter(json_data['tId'], json_data['tPassword']):
+    if person and Trip.enter(json_data['tId'], json_data['tPassword']):
         return JsonResponse(output)
     return JsonResponse({'error': output['message']})
 
