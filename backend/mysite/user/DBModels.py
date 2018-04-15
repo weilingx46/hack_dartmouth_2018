@@ -7,7 +7,7 @@ import sys
 connect("Trips")
 
 class Trip(Document):
-
+  
   tPeople = ListField()
   tId = StringField(max_length=20)
   tPassword = StringField()
@@ -23,14 +23,14 @@ class Trip(Document):
     tPassword = bcrypt.hashpw(tPassword.encode(),bcrypt.gensalt())
     newTrip = Trip(tName = tName, tPassword = tPassword, tDest = tDest, tPeople = tPeople)
     newTrip.save()
-
+      
     return newTrip.objectify()
 
   @staticmethod
   def check(tId):
     matches = Trip.objects(id = tId)
     if not matches:
-      return
+      return 
 
     return matches[0]
 
@@ -38,19 +38,46 @@ class Trip(Document):
   def getAll():
     return list(map(lambda x: [x.tName, str(x.id)], Trip.objects()))
 
-
-  def status(self):
+  
+  def status():
     return self.objectify()
 
+  @staticmethod
+  def enter(tId, password):
+    
+    matches = Trip.objects(id=tId)
+    if not matches:
+      return False
 
+    trip = matches[0]
+    if bcrypt.hashpw(password.encode(),trip.tPassword.encode()) == trip.tPassword.encode():
+      return True
+    else:
+      return False
+        
+  
   def addPeople(self, morePeople):
-    self.tPeople = self.tPeople + morePeople
-    self.save()
+
+    for pId in morePeople:
+      if pId:
+
+        matches = User.objects(id=pId)
+        if matches:
+          matches[0].addTrip(str(self.id))
+
 
     return self.objectify()
-
+    
   def deletePeople(self, deletePeople):
-    self.tPeople = [x for x in self.tPeople if x not in deletePeople]
+
+    for pId in deletePeople:
+      if pId:
+        matches = User.objects(id=pId)
+        
+        if matches:
+          print(matches)
+          matches[0].deleteTrip(str(self.id))
+    
     self.save()
 
     return self.objectify()
@@ -78,23 +105,23 @@ class Trip(Document):
         m = User.objects(id = i)
         if m:
           people.append(m[0].objectify())
-
+        
     return {'success':True,'tId':str(self.id),'tName': self.tName ,'tPeople': people, 'tDest':self.tDest}
-
+    
 class Friend(EmbeddedDocument):
   fName = StringField(max_length=30)
   fId = StringField(max_length=20)
 
   def objectify(self):
     return {'success':True, 'name':self.fName, 'id':self.fId }
-
+  
 class User(Document):
 
   uName = StringField(max_length=30)
   uId = StringField(max_length=20)
   uPassword = StringField()
   uUsername = StringField(max_length=20)
-
+  
   friends = ListField(EmbeddedDocumentField(Friend))
   trips = ListField()
 
@@ -103,17 +130,17 @@ class User(Document):
 
   latitude = FloatField()
   longitude = FloatField()
-  indicator = IntField()
+  indicator = StringField()
 
   indicators = ["Short Break","Restroom","Grabbing Something To Eat","Sleep"]
-
+  
   # create a new user, pass in desired username, password, and name
   @staticmethod
   def create(username, password, name):
 
     if len(username) < 4 or len(password) < 4:
       return {"success":False, "message":"Username or password too short!"}
-
+    
     if User.objects(uUsername = username):
       return {"success":False, "message":"User already exists!"}
 
@@ -141,7 +168,15 @@ class User(Document):
     usr.lastLogin = time.time()
     usr.save()
 
-    return {"success":True, "uName":usr.uUsername, "uId":str(usr.id), "authToken":usr.authToken, "friends":usr.friends, "trips":usr.trips}
+    tripInfo = []
+    for trip in usr.trips:
+      match = Trip.objects(id=trip)
+
+      if match:
+
+        tripInfo.append(match[0].objectify())
+    
+    return {"success":True, "uName":usr.uUsername, "uId":str(usr.id), "authToken":usr.authToken, "friends":usr.friends, "trips":tripInfo}
 
   # return user object if validated, otherwise give error object
   @staticmethod
@@ -149,25 +184,25 @@ class User(Document):
     try:
       int(uId, 16)
     except ValueError:
-      return
+      return 
 
     matches = User.objects(id=uId)
     if not matches:
-      return
+      return 
 
     usr = matches[0]
 
     now = time.time()
     if not usr.authToken:
-      return
+      return 
     elif (now - usr.lastLogin) > 60*30:
       usr.authToken = None
       usr.save()
-      return
+      return 
     elif AuthToken == usr.authToken:
       return usr
     else:
-      return
+      return 
 
   # update name password
   def update(self, name, password, latitude, longitude, indicator):
@@ -185,6 +220,45 @@ class User(Document):
 
     return self.objectify()
 
+  def addTrip(self, tripId):
+
+    matches = Trip.objects(id = tripId)
+    if not matches:
+      return {"success":False, "message":"No trip with that ID!"}
+    
+    trip = matches[0]
+    if str(self.id) not in trip.tPeople:
+
+      trip.tPeople = trip.tPeople + [str(self.id)]
+      self.trips = self.trips + [tripId]
+
+      print(self.save())
+      trip.save()
+      
+      return trip.objectify()
+    else:
+      return {'success':False, 'message':'Already in trip!'}
+      
+  def deleteTrip(self, tripId):
+
+    matches = Trip.objects(id = tripId)
+    if not matches:
+      return {"success":False, "message":"No trip with that ID!"}
+
+    trip = matches[0]
+    if str(self.id) in trip.tPeople:
+      trip.tPeople.remove(str(self.id))
+      self.trips.remove(tripId)
+
+      print(trip.tPeople)
+      
+      self.save()
+      trip.save()
+
+      return trip.objectify()
+    else:
+      return {'success':False, 'message':'User not in that trip!'}
+  
   # serialize into dictionary object
   def objectify(self):
     trips = []
@@ -193,11 +267,11 @@ class User(Document):
       if match:
         trips.append((match[0].tName, match[0].tId))
 
-    friends = []
+    friends = []  
     for f in self.friends:
       friends.append(f.objectify())
-
-    return {'uName':self.uName, 'uId':str(self.id), 'lat':self.latitude, 'long':self.longitude, 'indicator':self.indicator, 'trips':trips, 'friends':friends }
+      
+    return {'success': True, 'uName':self.uName, 'uId':str(self.id), 'lat':self.latitude, 'long':self.longitude, 'indicator':self.indicator, 'trips':trips, 'friends':friends }
 
 
 if __name__ == "__main__":
@@ -244,7 +318,7 @@ if __name__ == "__main__":
 
     print()
     print("=== Updating jill's account username ==== ")
-    restore[2].update('jillian',None)
+    restore[2].update('jillian',None, None, None, None)
     print("Results after updating name: " + str(restore[2].objectify()))
 
     print()
@@ -264,7 +338,7 @@ if __name__ == "__main__":
 
     print()
     print("Trip.getAll returns: " + str(Trip.getAll()))
-
+  
   finally:
     for o in restore:
       o.delete()
