@@ -9,5 +9,5 @@ urlpatterns = [
     path('add/', views.add),
     path('delete/', views.delete),
     path('destination/', views.destination),
-    path('status/<str:tripId>/', views.status)
+    path('status/', views.status)
 ]
