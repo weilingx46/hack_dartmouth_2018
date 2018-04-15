@@ -229,16 +229,16 @@ Request:
 
 Response:
 
-  {
-      'success':True,
-      'tId':'12210klfsd0',
-      'tName':'best trip ever',
-      'tPeople': [
-          'klj983jk20',
-          '124019204124',
-      ],
-      'tDest': [2104.222,22.111104]
-  }
+    {
+        'success':True,
+        'tId':'12210klfsd0',
+        'tName':'best trip ever',
+        'tPeople': [
+            'klj983jk20',
+            '124019204124',
+        ],
+        'tDest': [2104.222,22.111104]
+    }
 
 
 </details>
