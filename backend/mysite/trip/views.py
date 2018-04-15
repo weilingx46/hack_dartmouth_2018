@@ -15,7 +15,7 @@ def index(request):
 def create(request):
     #Trip.create(tName, tPassword, tPeople, tDest)
     json_data = json.loads(request.body.decode())
-    output = Trip.Create(json_data['tName'], json_data['tPassword'], json_data['tPeople'], json_data['tDest'])
+    output = Trip.create(json_data['tName'], json_data['tPassword'], json_data['tPeople'], json_data['tDest'])
     if output['success']== True:
         return JsonResponse(output)
     else:
