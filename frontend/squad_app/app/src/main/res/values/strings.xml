@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Squad</string>
+    <string name="title_1">Squad</string>
+    <string name="title_2">Trips</string>
+    <string name="title_3">Map</string>
+
+    <string-array name="gpq_freq">
+        <item>30 seconds</item>
+        <item>1 minute</item>
+        <item>10 minute</item>
+        <item>30 minute</item>
+        <item>1 hour</item>
+    </string-array>
+
+</resources>
