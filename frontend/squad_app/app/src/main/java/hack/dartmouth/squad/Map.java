@@ -32,6 +32,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static hack.dartmouth.squad.Menu.fileName;
+
 public class Map extends Fragment{
     MapView mView;
     SeekBar timeView;
@@ -75,11 +77,12 @@ public class Map extends Fragment{
                     // Permission is not granted
                 }
                 gMap.setMyLocationEnabled(true);
+
 //                if (curActivity.dataList != null) drawPath();
             }
         });
-
-        curActivity.updateData("file");
+//
+//        curActivity.updateData("file");
         return view;
     }
 

@@ -305,14 +305,16 @@ public class Menu extends AppCompatActivity implements Statistics.OnResponsePass
                 JSONObject login = api_data.getJSONObject("login");
                 Log.d("debug", "login: " + login.toString());
                 JSONArray trips = login.getJSONArray("trips");
-                JSONObject tPeople = trips.getJSONObject(0);
+                JSONArray tPeople = trips.getJSONArray(0);
                 Log.d("debug", "trip: " + trips.toString());
-//                    String user = tPeople.get("uName").toString();
-                    String lat = tPeople.get("lat").toString();
-                    String lng = tPeople.get("long").toString();
-                    Data datum = new Data("Name", lat, lng);
+//                for (int i = 0;i< tPeople.length() - 1; i++) {
+                    JSONObject json = tPeople.getJSONObject(0);
+                    String user = json.get("uName").toString();
+                    String lat = json.get("lat").toString();
+                    String lng = json.get("long").toString();
+                    Data datum = new Data(user, lat, lng);
                     data.add(datum);
-
+//                }
 
                 dataList = data;
             } else {
