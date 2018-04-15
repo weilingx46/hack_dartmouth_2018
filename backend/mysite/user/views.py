@@ -52,14 +52,16 @@ def update(request):
 def addTrip (request):
     json_data = json.loads(request.body.decode())
     person = User.check(json_data['userId'], json_data['authToken'])
+    output = person.addTrip('tId')
     if person and User.enter(json_data['tId'], json_data['tPassword']):
-        return JsonResponse(person.addTrip('tId'))
+        return JsonResponse(output)
     return JsonResponse({'error': output['message']})
 
 @csrf_exempt
 def deleteTrip (request):
     json_data = json.loads(request.body.decode())
     person = User.check(json_data['userId'], json_data['authToken'])
+    output = person.deleteTrip('tId')
     if person:
-        return JsonRespnose(person.deleteTrip('tId'))
+        return JsonRespnose(output)
     return JsonResponse({'error': output['message']})
