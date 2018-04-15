@@ -9,7 +9,7 @@ class Trip(Document):
   
   tPeople = ListField()
   tId = StringField(max_length=20)
-  tPassword = StringField(max_length=20)
+  tPassword = StringField()
   tName = StringField(max_length=40)
   tDest = ListField()
 
@@ -19,7 +19,7 @@ class Trip(Document):
     if matches:
       return {'success':False, 'message':'Trip with name already exists!'}
 
-    tPassword = bcrypt.hashpw(tPassword,bcrypt.getsalt())
+    tPassword = bcrypt.hashpw(tPassword.encode(),bcrypt.gensalt())
     newTrip = Trip(tName = tName, tPassword = tPassword, tDest = tDest, tPeople = tPeople)
     newTrip.save()
       
@@ -33,6 +33,10 @@ class Trip(Document):
 
     return matches[0]
 
+  def getAll():
+    return list(map(lambda x: [x.tName, x.tId], Trip.objects()))
+
+  
   def addPeople(self, morePeople):
     self.tPeople = self.tPeople + morePeople
     self.save()
@@ -180,3 +184,74 @@ class User(Document):
       friends.append(f.objectify())
       
     return {'uName':self.uName, 'uId':self.uId, 'lat':self.latitude, 'long':self.longitude, 'indicator':self.indicator, 'trips':trips, 'friends':friends }
+
+
+if __name__ == "__main__":
+  restore = []
+  
+  print("==== Creating account for 'henry' ====== ")
+  a = User.create('account1','password1','henry')
+  print("User.create returned: " + str(a))
+  a = User.objects(id=a['uId'])
+  restore.append(a[0])
+
+  print()
+  print("==== Creating account for 'jill' ===== ")
+  a = User.create('account2','password2','jill')
+  print("User.create returned: " + str(a))
+  a = User.objects(id=a['uId'])
+  restore.append(a[0])
+
+
+  print()
+
+  print("==== Creating account for 'jack' ==== ")
+  a = User.create('account3','password3', 'jack')
+  print("User.create returned: " + str(a))
+  a = User.objects(id = a['uId'])
+  restore.append(a[0])
+
+  print()
+  print("==== Logging in as jill ==== ")
+  a = User.login('account2','password2')
+  print("User.login returned: " + str(a))
+
+  print()
+  print("==== Logging in as Jack ==== ")
+  a = User.login('account3', 'password3')
+  print("User.login returned: " + str(a))
+
+
+  print()
+  print("=== Checking Jack authorization ===")
+  a = User.check(a['uId'],a['authToken'])
+  print("User.check returned " + str(a))
+
+  print()
+  print("=== Updating jill's account username ==== ")
+  restore[2].update('jillian',None)
+  print("Results after updating name: " + str(restore[2].objectify()))
+
+  print()
+  print("=== Creating empty trip ==== ")
+  a = Trip.create("trip1","password1",[],[])
+  print("Trip.create returned: " + str(a))
+  a = Trip.objects(id = a['tId'])[0]
+  restore.append(a)
+
+  print()
+  print("=== Creating cool trip ==== ")
+  a = Trip.create("cool trip","hardtoguess",[a[1].uId,a[2].uId],[60,60])
+  print("Trip.create returned: " + str(a))
+  a = Trip.objects(id = a['tId'])[0]
+  restore.append(a)
+
+  print()
+  print("Trip.getAll returns: " + str(Trip.getAll()))
+  
+  
+  for o in restore:
+    o.delete()
+
+  print()
+  print("==== Deleted test objects from database! ====")
