@@ -41,7 +41,7 @@ def login(request):
 @csrf_exempt
 def update(request):
     json_data = json.loads(request.body.decode())
-    person = User.check(json_data['uId'], json_data['authToken'])
+    person = User.check(json_data['userId'], json_data['authToken'])
     if person:
         return JsonResponse(person.update(json_data['name'], float(json_data['password']), float(json_data['lat']), json_data['long'],json_data['indicator']))
     else:
