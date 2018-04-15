@@ -1,6 +1,48 @@
+## Overview
 All text in bodies of POST requests need to be sent as x-www-form-urlencoded
 
 Hosted at: http://ec2-18-188-214-59.us-east-2.compute.amazonaws.com/
+
+### Users
+I've created a couple of default users and trips in the database you are free to use as needed:
+
+name: 'dummytest'
+Username: 'dummy'
+Password: 'notsodumb'
+Lat: 40.0001
+Long: 14.07
+uId: '5ad304f17f15006b0bb2a630'
+indicator: None
+
+name: 'spongebob'
+username: 'spongy'
+password: 'squarepants'
+lat: 40.0101
+long: 14.10
+uId: '5ad306b37f15006b6d1c2f12'
+indicator: 'OK'
+
+name: 'test'
+username: 'test1'
+password: 'test2'
+lat: 40.1101
+long: 14.13
+uId: '5ad307447f15006b6d1c2f13'
+
+### Trips
+
+name: 'best trip ever'
+password: 'password'
+users: ['5ad304f17f15006b0bb2a630','5ad306b37f15006b6d1c2f12'] (so dummy and spongebob)
+destination: [38.50, 14.90]
+tId: '5ad3083a7f15006b8053ddcc'
+
+name: 'another test trip'
+password: 'password'
+users: ['5ad304f17f15006b0bb2a630','5ad306b37f15006b6d1c2f12', '5ad307447f15006b6d1c2f13'] (so dummy and spongebob and test)
+destination: [35.50, 20.90]
+tId: '5ad308817f15006b8053ddcd'
+
 
 ### Routes
 <details>
@@ -85,7 +127,7 @@ Request:
       'name':'edward',
       'password':'newpassword',
       'lat':40.54957,
-      'longitude':240124.24444,
+      'long':240124.24444,
       'indicator':'Restroom break'/'OK'/'Food stop'
     }
 
@@ -96,7 +138,7 @@ Response:
       'uName':'edward',
       'uId':'12j49jsoz02',
       'lat':40.54957,
-      'longitude':240124.24444,
+      'long':240124.24444,
       'indicator':'Restroom break',
       'trips':[
         ('Boston day trip','12rsdfk23k520'
