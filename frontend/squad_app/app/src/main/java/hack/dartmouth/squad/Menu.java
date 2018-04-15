@@ -41,6 +41,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -249,7 +250,6 @@ public class Menu extends AppCompatActivity implements Statistics.OnResponsePass
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         storage = new Storage(this);
 
-        updateData(fileName);
         if (fileName != null){
             Log.d("fileName", fileName);
         }
@@ -259,6 +259,8 @@ public class Menu extends AppCompatActivity implements Statistics.OnResponsePass
         queue = Volley.newRequestQueue(this);
 
         api_data = initializeApi();
+        updateData(fileName);
+
     }
 
     private JSONObject initializeApi() {
@@ -296,7 +298,32 @@ public class Menu extends AppCompatActivity implements Statistics.OnResponsePass
 
     // update the data in accordance to the selected file
     public void updateData(String file){
-        dataList = storage.readFile(file);
+        try {
+            if (api_data.has("login")) {
+                Log.d("debug", "trying to load from trip");
+                ArrayList<Data> data = new ArrayList<>();
+                JSONObject login = api_data.getJSONObject("login");
+                Log.d("debug", "login: " + login.toString());
+                JSONArray trips = login.getJSONArray("trips");
+                JSONObject tPeople = trips.getJSONObject(0);
+                Log.d("debug", "trip: " + trips.toString());
+//                    String user = tPeople.get("uName").toString();
+                    String lat = tPeople.get("lat").toString();
+                    String lng = tPeople.get("long").toString();
+                    Data datum = new Data("Name", lat, lng);
+                    data.add(datum);
+
+
+                dataList = data;
+            } else {
+                // hard-coded; rachet
+                dataList = storage.readFile(file);
+            }
+        } catch(JSONException e) {
+            Log.d("debug", e.toString());
+            dataList = storage.readFile(file);
+        }
+
         Log.d("Data", dataList.toString());
         if (dataList != null){
 

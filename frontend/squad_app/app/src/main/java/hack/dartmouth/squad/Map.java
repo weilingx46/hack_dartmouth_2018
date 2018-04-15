@@ -78,6 +78,8 @@ public class Map extends Fragment{
 //                if (curActivity.dataList != null) drawPath();
             }
         });
+
+        curActivity.updateData("file");
         return view;
     }
 
