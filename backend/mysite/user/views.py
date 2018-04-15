@@ -54,7 +54,7 @@ def addTrip (request):
     person = User.check(json_data['userId'], json_data['authToken'])
     if person == None:
         return JsonResponse({'error': 'Person does not exist!'})
-    output = person.addTrip(tId)
+    output = person.addTrip(json_data['tId'])
     if person and User.enter(json_data['tId'], json_data['tPassword']):
         return JsonResponse(output)
     return JsonResponse({'error': output['message']})
@@ -65,7 +65,7 @@ def deleteTrip (request):
     person = User.check(json_data['userId'], json_data['authToken'])
     if person == None:
         return JsonResponse({'error': 'Person does not exist!'})
-    output = person.deleteTrip(tId)
+    output = person.deleteTrip(json_data['tId'])
     if person:
         return JsonResponse(output)
     return JsonResponse({'error': output['message']})
