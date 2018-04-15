@@ -13,10 +13,10 @@ def create(request):
     #Trip.create(tName, tPassword, tPeople, tDest)
     json_data = json.loads(request.body.decode())
     output = Trip.Create(json_data['tName'], json_data['tPassword'], json_data['tPeople'], json_data['tDest'])
-    if output['success']!= False:
+    if output['success']== True:
         return JsonResponse(output)
     else:
-        return JsonResponse({'error':'create_error'})
+        return JsonResponse({'error': output['message']})
 
 #3 arguments (id, password, member name)
 @csrf_exempt
@@ -28,7 +28,7 @@ def add (request):
     if output['success'] == True:
         return JsonResponse(output)
     else:
-        return JsonResponse({'error':'add_error'})
+        return JsonResponse({'error':output['message']})
 
 #3 arguments (squad name, member name)
 @csrf_exempt
@@ -41,7 +41,7 @@ def delete(request):
         return JsonResponse(output)
     #trip.delete
     else:
-        return JsonResponse({'error':'delete_error'})
+        return JsonResponse({'error':output['message']})
 
 #uncertain how many arguments
 @csrf_exempt
@@ -53,7 +53,7 @@ def destination (request):
     if output['success'] == True:
         return JsonResponse(output)
     else:
-        return JsonResponse({'error':"destination_error"})
+        return JsonResponse({'error':output['message']})
 
 #GET
 @csrf_exempt

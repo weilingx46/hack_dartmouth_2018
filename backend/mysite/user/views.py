@@ -22,7 +22,7 @@ def create(request):
     if output['success'] == True:
         return JsonResponse({'userId':output['uId'], 'authToken':output['authToken']})
     else:
-        return JsonResponse({'error':'create_error'})
+        return JsonResponse({'error':output['message']})
 
 
 #2 parameters (username, password)
@@ -34,7 +34,7 @@ def login(request):
     if output['success'] == True:
         return JsonResponse(output)
     else:
-        return JsonResponse({"error": "login_error"})
+        return JsonResponse({"error": output['message']})
 
 
 #3 parameters (uID, AuthToken, password)
@@ -46,7 +46,7 @@ def update(request):
         return JsonResponse(person.update(json_data['name'], json_data['password']))
     else:
     #if true, call udpate, which returns same as login
-        return JsonResponse({'error':'update_error'})
+        return JsonResponse({'error':output['message']})
 
 @csrf_exempt
 def status(request):
