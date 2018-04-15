@@ -167,8 +167,16 @@ class User(Document):
 
     usr.lastLogin = time.time()
     usr.save()
+
+    tripInfo = []
+    for trip in usr.trips:
+      match = Trip.objects(id=trip)
+
+      if match:
+
+        tripInfo.append(match[0].objectify())
     
-    return {"success":True, "uName":usr.uUsername, "uId":str(usr.id), "authToken":usr.authToken, "friends":usr.friends, "trips":usr.trips}
+    return {"success":True, "uName":usr.uUsername, "uId":str(usr.id), "authToken":usr.authToken, "friends":usr.friends, "trips":tripInfo}
 
   # return user object if validated, otherwise give error object
   @staticmethod
