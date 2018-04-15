@@ -34,6 +34,7 @@ class Trip(Document):
 
     return matches[0]
 
+  @staticmethod
   def getAll():
     return list(map(lambda x: [x.tName, str(x.id)], Trip.objects()))
 

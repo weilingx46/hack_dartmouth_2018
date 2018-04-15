@@ -6,8 +6,6 @@ import json
 from django.http import JsonResponse
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the trip center.")
 #POST
 
 #take 3 arguments (squad name, squad password, list members adding)
@@ -57,6 +55,11 @@ def destination (request):
         return JsonResponse(output)
     else:
         return JsonResponse({'error':output['message']})
+
+@csrf_exempt
+def trip (request):
+    return JsonResponse({"trips":getAll()})
+
 
 #GET
 @csrf_exempt
