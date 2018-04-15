@@ -177,7 +177,7 @@ Response:
 <summary><b>POST /trip/create/</b></summary>
 <br>
 
-To create a new trip in the database. Can optionally add people to the room immediately.
+To create a new trip in the database. Can optionally add people to the room immediately. You'll want to save the tripId (tId) for use on future requests.
 
 Request:
   
@@ -193,7 +193,18 @@ Request:
     }
 
 Response:
-
+    
+    {
+        'success':True,
+        'tId':'12210klfsd0',
+        'tName':'best trip ever',
+        'tPeople': [
+            '124su1248g9',
+            'klj983jk20',
+            '124019204124',
+        ],
+        'tDest': [2104.222,22.111104]
+    }
 </details>
 
 
@@ -215,7 +226,21 @@ Request:
     }
 
 Response:
-
+    
+    {
+        'success':True,
+        'tId':'12210klfsd0',
+        'tName':'best trip ever',
+        'tPeople': [
+            '124su1248g9',
+            'klj983jk20',
+            '124019204124',
+            '12l12rjk1j20',
+            '124109klsss',
+            '122109kfsls'
+        ],
+        'tDest': [2104.222,22.111104]
+    }
 </details>
 
 
@@ -238,11 +263,22 @@ Request:
 
 Response:
 
+     {
+        'success':True,
+        'tId':'12210klfsd0',
+        'tName':'best trip ever',
+        'tPeople': [
+            '124su1248g9',
+            'klj983jk20',
+            '124019204124'
+        ],
+        'tDest': [2104.222,22.111104]
+    }
 </details>
 
 
 <details>
-<summary><b>POST /trip/delete/</b></summary>
+<summary><b>POST /trip/destination/</b></summary>
 <br>
 
 To change the destination of a current trip
@@ -250,15 +286,23 @@ To change the destination of a current trip
 Request:
   
     {
-      'tId':'sdfk2912kl1',
-      'people': [
-        '12l12rjk1j20',
-        '124109klsss',
-        '122109kfsls'
-      ]
+      'tId': '124fs9d0ss0z',
+      'tDest':[120.124,124214.11]
     }
 
 Response:
+
+    {
+        'success':True,
+        'tId':'12210klfsd0',
+        'tName':'best trip ever',
+        'tPeople': [
+            '124su1248g9',
+            'klj983jk20',
+            '124019204124'
+        ],
+        'tDest': [120.124,124214.11]
+    }
 
 </details>
 
