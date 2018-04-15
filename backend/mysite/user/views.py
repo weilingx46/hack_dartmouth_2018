@@ -48,7 +48,7 @@ def update(request):
     #if true, call udpate, which returns same as login
         return JsonResponse({'error':output['message']})
 
-
+@csrf_exempt
 def addTrip (request):
     json_data = json.loads(request.body.decode())
     person = User.check(json_data['userId'], json_data['authToken'])
@@ -56,6 +56,7 @@ def addTrip (request):
         return JsonResponse(person.addTrip('tId'))
     return JsonResponse({'error': output['message']})
 
+@csrf_exempt
 def deleteTrip (request):
     json_data = json.loads(request.body.decode())
     person = User.check(json_data['userId'], json_data['authToken'])
