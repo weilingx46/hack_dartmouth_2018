@@ -8,18 +8,22 @@ def index(request):
 
 #take 3 arguments (squad name, squad password, list members adding)
 def create(request):
-    return HttpResponse("Squad ID")
+    #Trip.create(tName, tPassword, tPeople, tDest)
+    return HttpResponse("trip ID")
 
-#3 arguments (squad name, password, member name)
+#3 arguments (id, password, member name)
 def add (request):
-    return HttpResponse("Squad ID")
+    #trip.addPeople(tPeople)
+    return HttpResponse("trip ID")
 
 #3 arguments (squad name, member name)
 def delete(request):
+    #trip.delete
     return HttpResponse("Squad ID")
 
 #uncertain how many arguments
 def destination (request):
+    #trip.changeDest(tDest)
     return HttpResponse("Long/Lat Object")
 
 #GET
