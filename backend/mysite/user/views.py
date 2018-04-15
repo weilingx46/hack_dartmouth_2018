@@ -47,3 +47,15 @@ def update(request):
     else:
     #if true, call udpate, which returns same as login
         return JsonResponse({'error':output['message']})
+
+
+def addRoom(request):
+    json_data = json.loads(request.body.decode())
+    person = User.check(json_data['userId'], json_data['authToken'])
+    if person:
+        
+
+    return JsonResponse({'error': output['message']})
+
+def deleteRoom(request):
+    pass
