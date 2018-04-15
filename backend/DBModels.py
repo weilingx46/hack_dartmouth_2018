@@ -5,29 +5,96 @@ import bcrypt
 
 connect("Trips")
 
-class Trip(EmbeddedDocument):
+class Trip(Document):
+  
   tPeople = ListField()
   tId = StringField(max_length=20)
   tPassword = StringField(max_length=20)
   tName = StringField(max_length=40)
   tDest = ListField()
-  
+
+  @staticmethod
+  def create(tName, tPassword, tPeople, tDest):
+    matches = Trip.objects(tName=tName)
+    if matches:
+      return {'success':False, 'message':'Trip with name already exists!'}
+
+    tPassword = bcrypt.hashpw(tPassword,bcrypt.getsalt())
+    newTrip = Trip(tName = tName, tPassword = tPassword, tDest = tDest, tPeople = tPeople)
+    newTrip.save()
+      
+    return newTrip.objectify()
+
+  @staticmethod
+  def check(tId):
+    matches = Trip.objects(id = tId)
+    if not matches:
+      return 
+
+    return matches[0]
+
+  def addPeople(self, morePeople):
+    self.tPeople = self.tPeople + morePeople
+    self.save()
+
+    return self.objectify()
+    
+  def deletePeople(self, deletePeople):
+    self.tPeople = [x for x in self.tPeople if x not in deletePeople]
+    self.save()
+
+    return self.objectify()
+
+  def changeName(self, name):
+    self.tName = name
+    self.save()
+
+    return self.objectify()
+
+  def changeDest(self, tDest):
+    if not tDest or len(tDest) != 2:
+      return {'success':False, "message":"Malformed destination!"}
+
+    self.tDest = tDest
+    self.save()
+
+    return self.objectify()
+
+  def objectify(self):
+    people = []
+    for i in self.tPeople:
+      m = User.objects(id = i)
+      if m:
+        people.append(m.objectify())
+        
+    return {'success':True,'tId':str(self.id),'tName': self.tName ,'tPeople': people, 'tDest':self.tDest}
+    
 class Friend(EmbeddedDocument):
   fName = StringField(max_length=30)
   fId = StringField(max_length=20)
 
+  def objectify(self):
+    return {'success':True, 'name':self.fName, 'id':self.fId }
+  
 class User(Document):
+
   uName = StringField(max_length=30)
   uId = StringField(max_length=20)
   uPassword = StringField()
   uUsername = StringField(max_length=20)
   
   friends = ListField(EmbeddedDocumentField(Friend))
-  trips = ListField(EmbeddedDocumentField(Trip))
+  trips = ListField()
 
   lastLogin = LongField()
   authToken = StringField()
 
+  latitude = FloatField()
+  longitude = FloatField()
+  indicator = StringField()
+
+  indicators = ["Short Break","Restroom","Grabbing Something To Eat","Sleep"]
+  
   # create a new user, pass in desired username, password, and name
   @staticmethod
   def create(username, password, name):
@@ -47,7 +114,6 @@ class User(Document):
 
     newUser.save()
     return {"success":True, "uId":str(newUser.id), "authToken":authToken}
-
 
   # login with an existing username and password
   @staticmethod
@@ -71,23 +137,46 @@ class User(Document):
     try:
       int(uId, 16)
     except ValueError:
-      return {"success":False, "message": "Invalid uId!"}
+      return 
 
     matches = User.objects(id=uId)
     if not matches:
-      return {"success":False, "message":"No such user with ID"}
+      return 
 
     usr = matches[0]
-    if AuthToken == usr.authToken:
+
+    now = time.time()
+    if not usr.authToken:
+      return 
+    elif (now - usr.lastLogin) > 60*30:
+      usr.authToken = None
+      usr.save()
+      return 
+    elif AuthToken == usr.authToken:
       return usr
     else:
-      return {"success":False, "message":"Bad AuthToken"}
+      return 
 
+  # update name password
   def update(self, name, password):
     if name:
       self.uName = name
     if password:
       self.password = password
     self.save()
-    return {"success":True}
 
+    return self.objectify()
+
+  # serialize into dictionary object
+  def objectify(self):
+    trips = []
+    for i in self.trips:
+      match = Trip.objects(id = i)
+      if match:
+        trips.append((match[0].tName, match[0].tId))
+
+    friends = []  
+    for f in self.friends:
+      friends.append(f.objectify())
+      
+    return {'uName':self.uName, 'uId':self.uId, 'lat':self.latitude, 'long':self.longitude, 'indicator':self.indicator, 'trips':trips, 'friends':friends }
