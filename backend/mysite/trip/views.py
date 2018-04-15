@@ -58,7 +58,7 @@ def destination (request):
 
 @csrf_exempt
 def trip (request):
-    return JsonResponse({"trips":getAll()})
+    return JsonResponse({"trips":Trip.getAll()})
 
 
 #GET
