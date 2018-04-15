@@ -63,6 +63,6 @@ def trip (request):
 #GET
 @csrf_exempt
 def status(request):
-    json_data = request.GET.get('tId')
-    trip = Trip.check(json_data)
+    json_data = json.loads(request.body.decode())
+    trip = Trip.check(json_data['tId'])
     return JsonResponse(trip.status())
