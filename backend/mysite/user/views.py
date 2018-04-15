@@ -49,13 +49,16 @@ def update(request):
         return JsonResponse({'error':output['message']})
 
 
-def addRoom(request):
+def addTrip (request):
+    json_data = json.loads(request.body.decode())
+    person = User.check(json_data['userId'], json_data['authToken'])
+    if person and User.enter(json_data['tId'], json_data['tPassword']):
+        return JsonResponse(person.addTrip('tId'))
+    return JsonResponse({'error': output['message']})
+
+def deleteTrip (request):
     json_data = json.loads(request.body.decode())
     person = User.check(json_data['userId'], json_data['authToken'])
     if person:
-        
-
+        return JsonRespnose(person.deleteTrip('tId'))
     return JsonResponse({'error': output['message']})
-
-def deleteRoom(request):
-    pass

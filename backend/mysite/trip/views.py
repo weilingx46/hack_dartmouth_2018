@@ -60,7 +60,6 @@ def destination (request):
 def trip (request):
     return JsonResponse({"trips":Trip.getAll()})
 
-
 #GET
 @csrf_exempt
 def status(request):

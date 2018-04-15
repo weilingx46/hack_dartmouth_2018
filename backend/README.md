@@ -79,7 +79,7 @@ tId: '5ad308817f15006b8053ddcd'
 <summary><b>POST /user/create/</b></summary>
 <br>
 Route to post with certain parameters to create a user in the database. Expects username, password, and name fields, such that username
-and password fields are strings no shorter than 4 characters. 
+and password fields are strings no shorter than 4 characters.
 Request:
 
     {
@@ -87,20 +87,20 @@ Request:
       'password':'testpassword',
       'name','weiling'
     }
-    
+
 Response:
 
     {
       'userId':'sdnf983421',
       'authToken':'fnwef032rkn23'
     }
-    
+
 OR
-    
+
     {
       'error':'Password too short!'
     }
-    
+
 </details>
 
 <details>
@@ -108,11 +108,11 @@ OR
 <br>
 
 
-Login to an existing user account with username and password. You'll want to save the uId and authToken fields on succesful login, so
+Login to an existing user account with username and password. You'll want to save the uId and authToken fields on successful login, so
 that you can pass it back to the backend on certain function calls.
 
 Request:
-  
+
     {
       'username':'edwardstestaccount',
       'password':'Iamverysmart'
@@ -132,10 +132,10 @@ Response:
       'trips': [
         '124l124fs'
       ]
-    
+
     }
-    
-OR if you fail to login, something like 
+
+OR if you fail to login, something like
 
     {
       'success': False,
@@ -143,14 +143,15 @@ OR if you fail to login, something like
     }
 
 </details>
+
 <details>
 <summary><b>POST /user/update/</b></summary>
 <br>
 
 Not all of these fields have to be present, only fields which you want updated per request. However, authToken and uId MUST BE PRESENT.
- 
+
 Request:
-  
+
     {
       'authToken':'124812jks9124',
       'uId':'124kj912k41',
@@ -182,13 +183,74 @@ Response:
 </details>
 
 <details>
+<summary><b>POST /user/addTrip/</b></summary>
+<br>
+Route to post to add a trip to a user in the database. Expects a username, authToken, tripId
+they wish to be added to, and the trip's password.
+
+Request:
+
+    {
+      'username':'weilingx96',
+      'tName':'Florida Road Trip',
+      'tPassword','thisgrouprocks'
+    }
+
+
+Response:
+
+    {
+        'success':True,
+        'tId':'12210klfsd0',
+        'tName':'best trip ever',
+        'tPeople': [
+            'sdnf983421',
+            '124su1248g9',
+            'klj983jk20',
+            '124019204124',
+        ],
+        'tDest': [2104.222,22.111104]
+    }
+
+</details>
+
+<details>
+<summary><b>POST /user/deleteTrip/</b></summary>
+<br>
+Route to post to delete a trip from a user in the database. Expects a userId, authToken,
+and the name of the trip they wish to be deleted from.
+
+Request:
+
+    {
+      'username':'weilingx96',
+      'tName':'Florida Road Trip',
+    }
+
+Response:
+
+{
+    'success':True,
+    'tId':'12210klfsd0',
+    'tName':'best trip ever',
+    'tPeople': [
+        'klj983jk20',
+        '124019204124',
+    ],
+    'tDest': [2104.222,22.111104]
+}
+
+
+</details>
+
+<details>
 <summary><b>GET /trip/</b></summary>
 <br>
 
 Get a compact version of all the current trips, in ordered lists of (tripname, tripID)
 
 Request:
-    
+
     (None)
 
 Response:
@@ -210,7 +272,7 @@ Response:
 Get the status of everyone in the trip (meant to be used when actively driving)
 
 Request:
-    
+
     (None)
 
 Response:
@@ -238,7 +300,7 @@ Response:
             'trips':['1240912l','12404f412']
             'friends':['1gk21k40','12fs212']
         }
-      ], 
+      ],
       'tDest': [1240.0001,12.244412]
     }
 
@@ -252,7 +314,7 @@ Response:
 To create a new trip in the database. Can optionally add people to the room immediately. You'll want to save the tripId (tId) for use on future requests.
 
 Request:
-  
+
     {
       'tName':'best trip ever',
       'tPassword':'roomPassword',
@@ -265,7 +327,7 @@ Request:
     }
 
 Response:
-    
+
     {
         'success':True,
         'tId':'12210klfsd0',
@@ -287,7 +349,7 @@ Response:
 To add more people to an existing trip.
 
 Request:
-  
+
     {
       'tId':'sdfk2912kl1',
       'people': [
@@ -298,7 +360,7 @@ Request:
     }
 
 Response:
-    
+
     {
         'success':True,
         'tId':'12210klfsd0',
@@ -323,7 +385,7 @@ Response:
 To delete people from an existing trip.
 
 Request:
-  
+
     {
       'tId':'sdfk2912kl1',
       'people': [
@@ -356,7 +418,7 @@ Response:
 To change the destination of a current trip
 
 Request:
-  
+
     {
       'tId': '124fs9d0ss0z',
       'tDest':[120.124,124214.11]
@@ -377,5 +439,3 @@ Response:
     }
 
 </details>
-
-
